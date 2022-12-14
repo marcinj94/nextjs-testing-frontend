@@ -1,5 +1,5 @@
 import Home from "../pages/index";
-import { render } from "../utils/tests";
+import { render, setupUserEvent } from "../utils/tests";
 import { postsData } from "../data";
 import { screen, waitForElementToBeRemoved } from "@testing-library/react";
 import axios from "axios";
@@ -30,5 +30,27 @@ describe("User", () => {
     // Assert that user can see 10 posts by default on the users screen
     const posts = screen.getAllByRole("article");
     expect(posts).toHaveLength(10);
+  });
+
+  it("can create post successfully", async () => {
+    const { user } = setupUserEvent(<Home />);
+
+    //Get input field
+    const inputField = screen.getByRole("textbox");
+
+    //Type inside input
+    await user.type(inputField, "I am updating the field");
+
+    //Get submit button
+    const btnSubmit = screen.getByRole("button", { name: "Post" });
+
+    //click submit button
+    await user.click(btnSubmit);
+
+    expect(axios.post).toBeCalledTimes(1);
+
+    //Assert that user can now see 11 posts by default on the users screen
+    const posts = screen.getAllByRole("article");
+    expect(posts).toHaveLength(11);
   });
 });
